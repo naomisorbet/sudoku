@@ -23,6 +23,7 @@ class Cell:
         self.final_value = None
         
     def make_column(self, name):
+        """creates data structure for tracking the column neighbors for any given cell"""
         for cell in cells.keys():
             #if the letter part of any cell name matches the letter part of our cell,
             #add that matching cell instance to our cell's "row" list
@@ -30,6 +31,7 @@ class Cell:
                 self.column.append(cells[cell])
 
     def make_row(self, name):
+        """creates data structure for tracking the row neighbors for any given cell"""
         for cell in cells.keys():
             #if the number part of any cell name matches the number part of our cell,
             #add that matching cell to our cell's "row" list
@@ -37,6 +39,8 @@ class Cell:
                 self.row.append(cells[cell])
                 
     def make_square(self, current_cell_name, cell_dict):
+        """makes the nine, nine-celled squares.  takes as input the name of a cell
+        and a dict mapping the names of cells to the object instances of those cells."""
         
         #square by square of the board:
         for letter_subset in [letters[0:3], letters[3:6], letters[6:9]]:
@@ -53,11 +57,16 @@ class Cell:
                                 #add the non-self neighboring cell to the square list
                                 self.square.append(cell_dict[possible_neighbor_name])
     def set_final_value(self):
+        """if a cell's list of possible values is down to one, set that to be the
+        final value and convert the cell's possible values to an empty list"""
         if len(self.possible_values) == 1:
             self.final_value = int(self.possible_values[0])
             self.possible_values = []
 
 def generate_cells():
+    """create the 81 cell names in letter-number (column-row) format.  Instantiate the
+    81 cells.  Create and return a dict mapping the cell name strings to the cell
+    objects"""
     cells_dict = {}
     for letter in letters:
         for num in numbers:
@@ -65,6 +74,11 @@ def generate_cells():
     return cells_dict
     
 def make_neighbors(cells):
+    """takes as a parameter a dict ("cells"), mapping cell names to cell objects.
+    Populates, for each cell, a list of cell instances for all neighboring cells of
+    all neighbor types (column, row, and square).  Enables all three neighbor types
+    to be checked at once."""
+    
     for cell_name in sorted(cells.keys()):
         cells[cell_name].make_column(cell_name)
     for cell_name in sorted(cells.keys()):
@@ -80,26 +94,25 @@ def make_neighbors(cells):
             cells[cell_name].neighbors.append(neighbor)
     
 def nones_in_board(cells):
-    #takes a list of cell objects and returns True if any cell's final_value
-    #is still None and False otherwise (meaning the board is solved)
+    """takes a list of cell objects and returns True if any cell's final_value
+    is still None and False otherwise (a return value of False means the board is solved)"""
     for cell in cells:
         if cell.final_value == None:
             return True
     return False
 
 def solve(board):
-    #takes a list of cell objects, fills in board until board is full
+    """takes a list of cell objects, fills in board until board is full, updating
+    cell objects along the way"""
     while nones_in_board(board):
         #while board is not solved
         for cell in board:
-            #print(cell.name, board)
             cell.set_final_value()
             for neighbor in cell.neighbors:
                 #looking in turn at all the neighbors of each cell
                 if neighbor.final_value != None and int(neighbor.final_value) in cell.possible_values:
                     #if our cell has a neighbor with a final value that our cell
                     #thinks is a possible value,relieve the cell of that thought
-                    #print "removing neighbor's final value from cell's possible value" + cell.name + " / "+ str(cell.possible_values) + " / " + str(cell.final_value) + " / " + str(counter)
                     cell.possible_values.remove(int(neighbor.final_value))
                     cell.set_final_value()
             column_possible_values = []
@@ -129,27 +142,24 @@ def solve(board):
                 if num not in square_possible_values:
                     cell.final_value = num
                     cell.possible_values = []
-    
-                
-        #update nones_in_board to see if board is solved yet
 
 def convert_string_to_board(string, sorted_cells):
-    #takes an 81-character string, and sorted list of cell objects.
-    #in string, replaces 0's or .'s with Nones,
-    #maps characters to sorted cells, and assigns them to cells' final values
+    """takes an 81-character string, and sorted list of cell objects.
+    In string, replaces 0's or .'s with Nones, maps characters to sorted cells, and
+    assigns them to cells' final values"""
+    
     index_counter = 0
     for char in string:
         if char == "0" or char == ".":
             char = None
         else:
             char = int(char)
-        #else: print char
         # set final_value to num for the [index of num]-th object in sorted_cells
-        #print char
         sorted_cells[index_counter].final_value = char
         index_counter += 1        
 
 def print_board(sorted_cells):
+    """takes a sorted list of cell instances, and prints out a board"""
     row_counter = 1
     while row_counter <= 9:
         cell_counter = 1
@@ -167,14 +177,18 @@ def print_board(sorted_cells):
 puzzle_string = "...28.94.1.4...7......156.....8..57.4.......8.68..9.....196......5...8.3.43.28..."
 cells = generate_cells()
 # cells is a dict that maps cell names to cell instances
+
 sorted_cells = cells.values()
 
 def sort_key(cell):
     return cell.name[1] + cell.name[0]
 
 sorted_cells.sort(key = sort_key)
+# sorted_cells is a list of cell objects sorted by their names.  the cells are sorted by
+# row first, then column, so the order is A1 B1 C1 D1. . . F9 G9 H9 I9
 
 make_neighbors(cells)
+
 convert_string_to_board(puzzle_string, sorted_cells)
          
 solve(sorted_cells)
