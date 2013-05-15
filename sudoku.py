@@ -5,10 +5,13 @@
 # the string are sorted first by row and then by column, so on a board with columns A1
 # through I9, the elements are in the order A1 B1 C1. . . I1 A2 B2. . . H9 I9.
 
-# I wrote this code in a 24-hour period for my application to Hacker School in NYC.
-# It's my first real implementation of classes and objects.  I'm sure one day I'll
-# look at and see only room for improvement, but at the moment I look at it with
-# wonder.
+# I wrote this code under tight deadline pressure for an application to a hacker school
+# (that deadline is the reason it's not as DRY as it could be--I will fix that).  This
+# is my first complete program using classes and instances.
+
+# I sourced the algorithm quite organically, by manually solving one cell of a sudoku 
+# puzzle and then transformig the logic I had used into code.
+
 letters = ['A','B','C','D','E','F','G','H','I']
 numbers = range(1,10)
 class Cell:
